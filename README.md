@@ -32,7 +32,7 @@ Los datos incluidos son ficticios (trazado de prueba 9001).
 | Datos de alto volumen y vida corta | MongoDB 7: posiciones GPS, avisos de espera y auditoría, con caducidad automática |
 | Seguridad | bcrypt, JWT de 15 minutos, token de refresco rotativo en cookie HttpOnly, helmet y límite de peticiones |
 | Pruebas | Jest y Supertest; scripts de integridad para ambas bases |
-| Entorno | Docker Compose |
+| Entorno | Docker Compose; en producción, Caddy con HTTPS automático en una máquina virtual de Azure |
 
 ## Estructura
 
@@ -40,7 +40,8 @@ Los datos incluidos son ficticios (trazado de prueba 9001).
 api/                 API en NestJS (src/, pruebas en test/ y *.spec.ts, demo/)
 bd/postgres/         esquema, datos de prueba, consultas de ejemplo e integridad
 bd/mongo/            colecciones, validadores e índices
-docs/                guía de instalación
+despliegue/          servidor de producción: Caddy (HTTPS), API y bases en Docker
+docs/                guías de instalación y de despliegue
 .github/             pruebas automáticas en cada pull request
 docker-compose.yml   PostgreSQL 16 y MongoDB 7 para desarrollo
 ```
@@ -65,6 +66,10 @@ npm test             # unitarias
 npm run test:e2e     # integración contra las bases reales
 npm run lint         # análisis estático
 ```
+
+## Despliegue
+
+El servidor de producción corre los mismos contenedores con Caddy delante, que entrega HTTPS con certificado automático. Los pasos para crearlo en Azure, publicar cambios y respaldar las bases están en [`docs/despliegue-azure.md`](docs/despliegue-azure.md).
 
 ## Cómo trabajamos
 

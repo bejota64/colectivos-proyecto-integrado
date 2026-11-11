@@ -1,0 +1,109 @@
+# Sistema Integral para Colectivos en un servidor (produccion).
+#
+# Cuatro servicios en la misma red interna de Docker:
+#   caddy     unica puerta de entrada (80 y 443). Pide y renueva solo el
+#             certificado HTTPS, entrega la web y pasa /api/* a la API.
+#   api       NestJS, construida con api/Dockerfile.
+#   postgres  datos con integridad referencial.
+#   mongo     posiciones GPS, avisos de espera y auditoria.
+#
+# Las bases NO publican puertos: desde internet solo se llega a Caddy.
+#
+# Uso (desde esta carpeta, con el .env creado por ./generar-env.sh):
+#   docker compose up -d --build
+#   docker compose ps
+
+name: colectivos
+
+x-registros: &registros
+  # Limita los registros de cada contenedor para no llenar el disco.
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: colectivos
+      POSTGRES_USER: ${POSTGRES_USUARIO:?Falta POSTGRES_USUARIO en .env}
+      POSTGRES_PASSWORD: ${POSTGRES_CONTRASENA:?Falta POSTGRES_CONTRASENA en .env}
+      TZ: America/Santiago
+    volumes:
+      - datos_postgres:/var/lib/postgresql/data
+      - ../bd/postgres/inicio:/docker-entrypoint-initdb.d:ro
+    # Se consulta por el nombre del servicio y no por localhost: durante la
+    # primera carga de datos el servidor temporal solo escucha en local, asi
+    # que la base aparece sana recien cuando la API ya puede conectarse.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h postgres -U \"$$POSTGRES_USER\" -d colectivos"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    logging: *registros
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    # En un servidor de 4 GB, MongoDB tomaria por defecto 1,5 GB de cache.
+    command: ["--wiredTigerCacheSizeGB", "0.5"]
+    environment:
+      MONGO_INITDB_DATABASE: colectivos
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USUARIO:?Falta MONGO_USUARIO en .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_CONTRASENA:?Falta MONGO_CONTRASENA en .env}
+      TZ: America/Santiago
+    volumes:
+      - datos_mongo:/data/db
+      - ../bd/mongo/inicio:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--host", "mongo", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    logging: *registros
+
+  api:
+    build: ../api
+    image: colectivos-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PUERTO: 3000
+      URL_POSTGRES: postgresql://${POSTGRES_USUARIO}:${POSTGRES_CONTRASENA}@postgres:5432/colectivos
+      URL_MONGO: mongodb://${MONGO_USUARIO}:${MONGO_CONTRASENA}@mongo:27017/?authSource=admin
+      SECRETO_JWT: ${SECRETO_JWT:?Falta SECRETO_JWT en .env}
+      LIMITE_GENERAL_POR_MINUTO: 100
+      TZ: America/Santiago
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    logging: *registros
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMINIO: ${DOMINIO:?Falta DOMINIO en .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./web-provisional:/srv/web:ro
+      - datos_caddy:/data
+      - config_caddy:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    logging: *registros
+
+volumes:
+  datos_postgres:
+  datos_mongo:
+  datos_caddy:
+  config_caddy:
