@@ -14,6 +14,7 @@ import { AutenticacionModulo } from './modulos/autenticacion/autenticacion.modul
 import { EstadisticasModulo } from './modulos/estadisticas/estadisticas.modulo';
 import { FlotaModulo } from './modulos/flota/flota.modulo';
 import { JornadasModulo } from './modulos/jornadas/jornadas.modulo';
+import { SaludModulo } from './modulos/salud/salud.modulo';
 import { TiempoRealModulo } from './modulos/tiempo-real/tiempo-real.modulo';
 import { TrazadosModulo } from './modulos/trazados/trazados.modulo';
 import { UsuariosModulo } from './modulos/usuarios/usuarios.modulo';
@@ -51,6 +52,8 @@ import { ValoracionesModulo } from './modulos/valoraciones/valoraciones.modulo';
     ValoracionesModulo,
     // Capa 4, analisis
     EstadisticasModulo,
+    // Operacion del servidor
+    SaludModulo,
   ],
   providers: [
     // Los guards globales corren en este orden: limite, sesion, rol.

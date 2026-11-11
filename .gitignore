@@ -9,6 +9,9 @@ coverage/
 .env.*
 !.env.ejemplo
 
+# Respaldos de las bases en el servidor (contienen datos)
+despliegue/respaldos/
+
 # Resultados locales de pruebas (las evidencias van en pruebas/resultados/)
 *.log
 cookies.txt

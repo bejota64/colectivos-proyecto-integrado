@@ -1,0 +1,12 @@
+# Lo que NO entra a la imagen de Docker.
+node_modules
+dist
+coverage
+test
+demo
+*.log
+cookies.txt
+
+# Secretos: la configuracion llega por variables de entorno, nunca dentro de la imagen.
+.env
+.env.*

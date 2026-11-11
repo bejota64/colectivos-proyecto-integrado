@@ -15,7 +15,7 @@ const MENSAJE_INTERNO = 'Ocurrio un error interno. Intenta de nuevo mas tarde';
 /**
  * Filtro global de errores (OWASP A10:2025, manejo de condiciones
  * excepcionales). Hace tres cosas:
- *  1. Los errores HTTP previstos (400, 401, 403, 404, 409, 422, 429) salen
+ *  1. Los errores HTTP previstos (400, 401, 403, 404, 409, 422, 429, 503) salen
  *     tal cual: los mensajes los escribimos nosotros.
  *  2. Cualquier otro error (una caida de la base, un bug) responde 500 con
  *     un mensaje generico. El detalle y la traza quedan SOLO en el log del
