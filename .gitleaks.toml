@@ -1,0 +1,15 @@
+# Configuracion de gitleaks (busqueda de secretos en el repositorio).
+# Usa las reglas por defecto y solo ignora valores de ejemplo y secretos
+# de prueba que no sirven fuera de las pruebas automaticas.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Valores de ejemplo y secretos de prueba (no son credenciales reales)"
+paths = [
+  '''(^|/)\.env\.ejemplo$''',
+]
+regexes = [
+  '''secreto-de-prueba-de-mas-de-32-caracteres''',
+]

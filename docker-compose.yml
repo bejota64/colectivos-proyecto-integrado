@@ -1,0 +1,55 @@
+# Bases de datos del Sistema Integral para Colectivos (entorno de desarrollo).
+#
+# Uso:
+#   1. Copiar .env.ejemplo como .env y cambiar las contrasenas.
+#   2. docker compose up -d
+#   3. Los scripts de bd/*/inicio se ejecutan solos la PRIMERA vez.
+#      Para volver a empezar desde cero: docker compose down -v
+#
+# Los puertos se publican solo en 127.0.0.1: las bases no quedan
+# accesibles desde la red ni desde internet.
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: colectivos
+      POSTGRES_USER: ${POSTGRES_USUARIO}
+      POSTGRES_PASSWORD: ${POSTGRES_CONTRASENA}
+      TZ: America/Santiago
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - datos_postgres:/var/lib/postgresql/data
+      - ./bd/postgres/inicio:/docker-entrypoint-initdb.d:ro
+      - ./bd/postgres:/scripts:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USUARIO} -d colectivos"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: colectivos
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USUARIO}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_CONTRASENA}
+      TZ: America/Santiago
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - datos_mongo:/data/db
+      - ./bd/mongo/inicio:/docker-entrypoint-initdb.d:ro
+      - ./bd/mongo:/scripts:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  datos_postgres:
+  datos_mongo:

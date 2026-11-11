@@ -1,0 +1,6 @@
+# Fin de linea LF en todo el repositorio, tambien en Windows. Los scripts
+# .sh y .sql se ejecutan dentro de contenedores Linux: con CRLF fallan.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary

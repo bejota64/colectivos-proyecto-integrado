@@ -1,0 +1,20 @@
+# Dependencias y archivos generados
+node_modules/
+dist/
+build/
+coverage/
+
+# Secretos: NUNCA se suben. Solo se suben los .env.ejemplo
+.env
+.env.*
+!.env.ejemplo
+
+# Resultados locales de pruebas (las evidencias van en pruebas/resultados/)
+*.log
+cookies.txt
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
