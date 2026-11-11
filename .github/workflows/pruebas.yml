@@ -20,7 +20,7 @@ permissions:
 jobs:
   pruebas:
     name: Lint, unitarias e integracion
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       TZ: America/Santiago
@@ -126,7 +126,7 @@ jobs:
 
   secretos:
     name: Busqueda de secretos (gitleaks)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Descargar el codigo con todo el historial
