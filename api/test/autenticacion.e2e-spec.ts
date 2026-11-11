@@ -199,6 +199,12 @@ describe('Autenticacion y control de acceso', () => {
   });
 
   describe('Rutas protegidas', () => {
+    it('la ruta de salud responde sin sesion y solo dice "ok"', async () => {
+      const respuesta = await request(servidor).get('/api/salud');
+      expect(respuesta.status).toBe(200);
+      expect(respuesta.body).toEqual({ estado: 'ok' });
+    });
+
     it('E1: sin token responde 401', async () => {
       expect((await request(servidor).get('/api/usuarios/yo')).status).toBe(
         401,

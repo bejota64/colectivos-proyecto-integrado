@@ -63,6 +63,11 @@ export class MongoServicio implements OnModuleInit, OnModuleDestroy {
     this.bd = this.cliente.db('colectivos');
   }
 
+  /** Comprueba que el servidor responde. Lo usa la ruta de salud. */
+  async ping(): Promise<void> {
+    await this.cliente.db('admin').command({ ping: 1 });
+  }
+
   coleccion<T extends Document>(nombre: NombreColeccion): Collection<T> {
     if (!this.bd) {
       throw new Error('MongoDB aun no esta conectado');
